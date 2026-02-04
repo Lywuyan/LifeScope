@@ -1,0 +1,48 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: LifeScope
+
+  datasource:
+    url: jdbc:mysql://192.168.31.128:3306/lifescope_db?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: lifescope_user
+    password: lifescope_user_123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  # Redis
+  data:
+    redis:
+      host: 192.168.31.128
+      port: 6379
+      database: 0
+
+  # Kafka
+  kafka:
+    bootstrap-servers: 192.168.31.128:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all
+    consumer:
+      group-id: lifescope-gateway
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      auto-offset-reset: earliest
+      enable-auto-commit: true
+
+# MyBatis-Plus
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# jwt
+jwt:
+  secret: SIhB1rKAZhA75cR+UrNNUVxAA9W0cokkcIwgUG44c9I=
+  expiration-hours: 24
