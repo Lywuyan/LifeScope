@@ -4,7 +4,6 @@ server:
 spring:
   application:
     name: LifeScope
-
   datasource:
     url: jdbc:mysql://192.168.31.128:3306/lifescope_db?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
     username: lifescope_user

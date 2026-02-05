@@ -3,43 +3,261 @@ package org.wuyan.lifescope.commons.result;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.wuyan.lifescope.commons.enums.HttpStatusEnum;
 
 /**
  * 统一 API 响应包装器
  * 所有接口都用这个结构返回，前端一个 if 就可以判断成功失败。
  */
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class ResponseResult<T> {
+    /**
+     * 状态码
+     */
+    private Integer code;
 
-    private boolean success;
-    private int     code;
-    private String  message;
-    private T       data;
+    /**
+     * 状态信息
+     */
+    private Boolean status;
 
-    // ── 静态工厂方法 ──────────────────────────────
-    public static <T> ResponseResult<T> ok(T data) {
-        return new ResponseResult<>(true, 200, "OK", data);
+    /**
+     * 返回信息
+     */
+    private String message;
+
+    /**
+     * 数据
+     */
+    private T data;
+
+    /**
+     * 全参数方法
+     *
+     * @param code    状态码
+     * @param status  状态
+     * @param message 返回信息
+     * @param data    返回数据
+     * @param <T>     泛型
+     * @return {@link ResponseResult<T>}
+     */
+    private static <T> ResponseResult<T> response(Integer code, Boolean status, String message, T data) {
+
+
+        ResponseResult<T> responseResult = new ResponseResult<>();
+        responseResult.setCode(code);
+        responseResult.setStatus(status);
+        responseResult.setMessage(message);
+        responseResult.setData(data);
+        return responseResult;
     }
 
-    public static <T> ResponseResult<T> ok(String message, T data) {
-        return new ResponseResult<>(true, 200, message, data);
+    /**
+     * 全参数方法
+     *
+     * @param code    状态码
+     * @param status  状态
+     * @param message 返回信息
+     * @param <T>     泛型
+     * @return {@link ResponseResult<T>}
+     */
+    private static <T> ResponseResult<T> response(Integer code, Boolean status, String message) {
+
+
+        ResponseResult<T> responseResult = new ResponseResult<>();
+        responseResult.setCode(code);
+        responseResult.setStatus(status);
+        responseResult.setMessage(message);
+        return responseResult;
     }
 
-    public static <T> ResponseResult<T> error(int code, String message) {
-        return new ResponseResult<>(false, code, message, null);
+    /**
+     * 成功返回（无参）
+     *
+     * @param <T> 泛型
+     * @return {@link ResponseResult<T>}
+     */
+    public static <T> ResponseResult<T> success() {
+
+
+        return response(HttpStatusEnum.SUCCESS.getCode(), true, HttpStatusEnum.SUCCESS.getMessage(), null);
     }
 
-    public static <T> ResponseResult<T> badRequest(String message) {
-        return error(400, message);
+    /**
+     * 成功返回（枚举参数）
+     *
+     * @param httpResponseEnum 枚举参数
+     * @param <T>              泛型
+     * @return {@link ResponseResult<T>}
+     */
+    public static <T> ResponseResult<T> success(HttpStatusEnum httpResponseEnum) {
+
+
+        return response(httpResponseEnum.getCode(), true, httpResponseEnum.getMessage());
     }
 
-    public static <T> ResponseResult<T> unauthorized(String message) {
-        return error(401, message);
+    /**
+     * 成功返回（状态码+返回信息）
+     *
+     * @param code    状态码
+     * @param message 返回信息
+     * @param <T>     泛型
+     * @return {@link ResponseResult<T>}
+     */
+    public static <T> ResponseResult<T> success(Integer code, String message) {
+
+
+        return response(code, true, message);
     }
 
-    public static <T> ResponseResult<T> notFound(String message) {
-        return error(404, message);
+    /**
+     * 成功返回（返回信息 + 数据）
+     *
+     * @param message 返回信息
+     * @param data    数据
+     * @param <T>     泛型
+     * @return {@link ResponseResult<T>}
+     */
+    public static <T> ResponseResult<T> success(String message, T data) {
+
+
+        return response(HttpStatusEnum.SUCCESS.getCode(), true, message, data);
+    }
+
+    /**
+     * 成功返回（状态码+返回信息+数据）
+     *
+     * @param code    状态码
+     * @param message 返回信息
+     * @param data    数据
+     * @param <T>     泛型
+     * @return {@link ResponseResult<T>}
+     */
+    public static <T> ResponseResult<T> success(Integer code, String message, T data) {
+
+
+        return response(code, true, message, data);
+    }
+
+    /**
+     * 成功返回（数据）
+     *
+     * @param data 数据
+     * @param <T>  泛型
+     * @return {@link ResponseResult<T>}
+     */
+    public static <T> ResponseResult<T> success(T data) {
+
+
+        return response(HttpStatusEnum.SUCCESS.getCode(), true, HttpStatusEnum.SUCCESS.getMessage(), data);
+    }
+
+    /**
+     * 成功返回（返回信息）
+     *
+     * @param message 返回信息
+     * @param <T>  泛型
+     * @return {@link ResponseResult<T>}
+     */
+    public static <T> ResponseResult<T> success(String message) {
+
+
+        return response(HttpStatusEnum.SUCCESS.getCode(), true, message, null);
+    }
+
+    /**
+     * 失败返回（无参）
+     *
+     * @param <T> 泛型
+     * @return {@link ResponseResult<T>}
+     */
+    public static <T> ResponseResult<T> fail() {
+
+
+        return response(HttpStatusEnum.ERROR.getCode(), false, HttpStatusEnum.ERROR.getMessage(), null);
+    }
+
+    /**
+     * 失败返回（枚举）
+     *
+     * @param httpResponseEnum 枚举
+     * @param <T>              泛型
+     * @return {@link ResponseResult<T>}
+     */
+    public static <T> ResponseResult<T> fail(HttpStatusEnum httpResponseEnum) {
+
+
+        return response(httpResponseEnum.getCode(), false, httpResponseEnum.getMessage());
+    }
+
+    /**
+     * 失败返回（状态码+返回信息）
+     *
+     * @param code    状态码
+     * @param message 返回信息
+     * @param <T>     泛型
+     * @return {@link ResponseResult<T>}
+     */
+    public static <T> ResponseResult<T> fail(Integer code, String message) {
+
+
+        return response(code, false, message);
+    }
+
+    /**
+     * 失败返回（返回信息+数据）
+     *
+     * @param message 返回信息
+     * @param data    数据
+     * @param <T>     泛型
+     * @return {@link ResponseResult<T>}
+     */
+    public static <T> ResponseResult<T> fail(String message, T data) {
+
+
+        return response(HttpStatusEnum.ERROR.getCode(), false, message, data);
+    }
+
+    /**
+     * 失败返回（状态码+返回信息+数据）
+     *
+     * @param code    状态码
+     * @param message 返回消息
+     * @param data    数据
+     * @param <T>     泛型
+     * @return {@link ResponseResult<T>}
+     */
+    public static <T> ResponseResult<T> fail(Integer code, String message, T data) {
+
+
+        return response(code, false, message, data);
+    }
+
+    /**
+     * 失败返回（数据）
+     *
+     * @param data 数据
+     * @param <T>  泛型
+     * @return {@link ResponseResult<T>}
+     */
+    public static <T> ResponseResult<T> fail(T data) {
+
+
+        return response(HttpStatusEnum.ERROR.getCode(), false, HttpStatusEnum.ERROR.getMessage(), data);
+    }
+
+    /**
+     * 失败返回（返回信息）
+     *
+     * @param message 返回信息
+     * @param <T>  泛型
+     * @return {@link ResponseResult<T>}
+     */
+    public static <T> ResponseResult<T> fail(String message) {
+
+
+        return response(HttpStatusEnum.ERROR.getCode(), false, message, null);
     }
 }
