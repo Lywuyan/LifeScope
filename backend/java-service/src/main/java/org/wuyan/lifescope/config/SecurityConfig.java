@@ -33,6 +33,8 @@ public class SecurityConfig {
 
                 // ── 权限规则 ──────────────────────────
                 .authorizeHttpRequests(auth -> auth
+                        // 允许 OPTIONS 方法（用于CORS预检请求）
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 确保OPTIONS请求被放行
                         // 注册 + 登录 公开
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
