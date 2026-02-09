@@ -1,0 +1,37 @@
+name: app
+description: LifeScope — 智能生活分析报告 APP
+
+pubspec_generators:
+  # Flutter 3.x 标准配置
+
+flutter:
+  uses-material-design: true
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.2.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # HTTP 客户端
+  http: ^1.6.0
+
+  # 本地存储（保存 token）
+  flutter_secure_storage: ^8.0.2
+
+  # 状态管理
+  provider: ^6.1.1
+
+  # 图表（后续报告页用）
+  fl_chart: ^0.69.2
+
+  # 图标
+  cupertino_icons: ^1.0.6
+
+dev_dependencies:
+  flutter_lints: ^3.0.0
+  flutter_test:
+    sdk: flutter
