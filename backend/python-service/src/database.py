@@ -3,11 +3,12 @@
 # SQLAlchemy 引擎 + ORM 基类
 # Python 侧主要写 daily_metrics，其他表目前只读
 # ============================================================
-from sqlalchemy import create_engine, Column, Integer, String, Date, Float, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, Date, Float
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from sqlalchemy.pool import QueuePool
 
 from src.config import settings
+from src.util.snowflake import IdWorker
 
 # ── 引擎 ──────────────────────────────────────
 engine = create_engine(
@@ -27,11 +28,15 @@ class Base(DeclarativeBase):
     pass
 
 
+# 创建一个全局的雪花ID生成器实例
+id_worker = IdWorker(datacenter_id=1, worker_id=1, sequence=0)
+
+
 # ── DailyMetrics 模型 ──────────────────────────
 class DailyMetrics(Base):
     __tablename__ = "daily_metrics"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True)
     user_id = Column(Integer, nullable=False)
     metric_date = Column(Date, nullable=False)
     total_active_mins = Column(Integer)
@@ -43,17 +48,27 @@ class DailyMetrics(Base):
     peak_hour = Column(Integer)
     task_completion_rate = Column(Float)
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # 使用雪花算法生成唯一ID
+        self.id = id_worker.get_id()
+
 
 # ── RawBehaviorData 模型（只读） ────────────────
 class RawBehaviorData(Base):
     __tablename__ = "raw_behavior_data"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True)
     user_id = Column(Integer, nullable=False)
     record_date = Column(Date, nullable=False)
     app_name = Column(String(128), nullable=False)
     usage_mins = Column(Integer, nullable=False)
     category = Column(String(64))
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # 使用雪花算法生成唯一ID
+        self.id = id_worker.get_id()
 
 
 # ── 工具函数 ──────────────────────────────────

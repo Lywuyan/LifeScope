@@ -13,8 +13,7 @@ from src.config import settings
 from src import etl
 from src.kafka_consumer import start_consumer_thread
 
-
-app = FastAPI(title="LifeScope AI Service", version="1.0.0")
+app = FastAPI(title="LifeScope AI Service", version="1.0.0", debug=True)
 
 
 # ── 启动事件 ─────────────────────────────────────
@@ -24,7 +23,7 @@ async def startup():
     logger.info(f"  MySQL : {settings.db_host}:{settings.db_port}/{settings.db_name}")
     logger.info(f"  Kafka : {settings.kafka_bootstrap}")
     logger.info(f"  端口  : {settings.app_port}")
-    start_consumer_thread()          # 后台拉数据
+    start_consumer_thread()  # 后台拉数据
 
 
 # ── 健康检查 ─────────────────────────────────────
