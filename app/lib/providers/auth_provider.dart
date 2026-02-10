@@ -45,7 +45,7 @@ class AuthProvider extends ChangeNotifier {
   bool      get isLoggedIn  => _token != null;
   UserInfo? get currentUser => _currentUser;
   bool      get isLoading   => _isLoading;
-
+  String?   get token => _token;
   // ── 初始化（检查本地 token）───────────────────
   Future<void> initialize() async {
     _token = await _storage.read(key: 'token');

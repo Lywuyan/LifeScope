@@ -3,6 +3,7 @@
 // 首页 — 登录后的主界面骨架
 // Phase 5 会在这里填充报告/挑战/成就模块
 // ============================================================
+import 'package:app/screens/manualInput_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -98,11 +99,17 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 16),
 
             // ── 快速数据上传入口（占位）───────────
-            _placeholderCard(
-              title: '📱 手动上传数据',
-              subtitle: '记录今天的游戏/健身/学习',
-              icon: Icons.upload_outlined,
-              color: const Color(0xFF34D399),
+            GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ManualInputScreen()),
+              ),
+              child: _placeholderCard(
+                title: '📱 手动上传数据',
+                subtitle: '记录今天的游戏/健身/学习',
+                icon: Icons.upload_outlined,
+                color: const Color(0xFF34D399),
+              ),
             ),
           ],
         ),
