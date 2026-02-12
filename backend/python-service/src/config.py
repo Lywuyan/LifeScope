@@ -18,7 +18,7 @@ class Settings(BaseSettings):
         return f"mysql+pymysql://{self.db_user}:{self.db_pass}@{self.db_host}:{self.db_port}/{self.db_name}"
 
     # ── Redis ────────────────────────────────────
-    redis_host: str = "localhost"
+    redis_host: str = "192.168.31.128"
     redis_port: int = 6379
     redis_db:   int = 0
 

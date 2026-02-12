@@ -5,16 +5,47 @@
 #   提供 /health 和手动触发 ETL 的接口
 # 启动命令: uvicorn app.main:app --host 0.0.0.0 --port 8001 --reload
 # ============================================================
-from datetime import date
+from datetime import date,timedelta
+
+from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
 from loguru import logger
 
 from src.config import settings
 from src import etl
+from src.database import SessionLocal, RawBehaviorData
 from src.kafka_consumer import start_consumer_thread
 
 app = FastAPI(title="LifeScope AI Service", version="1.0.0", debug=True)
 
+scheduler = BackgroundScheduler()
+
+
+def daily_compute_job():
+    """每天凌晨 1 点执行"""
+    yesterday = date.today() - timedelta(days=1)
+    logger.info(f"[定时任务] 开始计算 {yesterday} 的指标")
+
+    with SessionLocal() as db:
+        # 查询所有有数据的用户
+        user_ids = (
+            db.query(RawBehaviorData.user_id)
+            .filter(RawBehaviorData.record_date == yesterday)
+            .distinct()
+            .all()
+        )
+
+        for (user_id,) in user_ids:
+            try:
+                etl.compute_daily_metrics(user_id, yesterday)
+            except Exception as e:
+                logger.error(f"[定时任务] 失败 user={user_id}: {e}")
+
+    logger.info(f"[定时任务] 完成，处理 {len(user_ids)} 个用户")
+
+
+# 添加定时任务
+scheduler.add_job(daily_compute_job, 'cron', hour=1, minute=0)
 
 # ── 启动事件 ─────────────────────────────────────
 @app.on_event("startup")
