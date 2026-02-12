@@ -35,8 +35,9 @@ class Settings(BaseSettings):
 
     # ── LLM ──────────────────────────────────────
     llm_api_key:  str = ""
-    llm_api_url:  str = "https://api.anthropic.com/v1/messages"
-    llm_model:    str = "claude-sonnet-4-20250514"
+    llm_api_url:  str = ""
+    llm_model:    str = ""
+    llm_provider: str = ""
 
     # ── 服务 ─────────────────────────────────────
     app_port: int = 8001

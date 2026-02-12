@@ -4,31 +4,37 @@
 # =============================================
 
 # Web 框架
-fastapi==0.109.1
-uvicorn[standard]==0.27.0
+fastapi
+uvicorn[standard]
 
 # Kafka
 confluent-kafka==2.13.0
 
 # 数据库
-PyMySQL==1.1.0
-SQLAlchemy==2.0.29
+PyMySQL
+SQLAlchemy
 
 # Redis
-redis==5.0.1
+redis
 
 # 数据验证
-pydantic==2.6.1
-pydantic-settings==2.1.0
+pydantic
+pydantic-settings
 
 # 环境变量
-python-dotenv==1.0.1
+python-dotenv
 
 # HTTP 客户端（调用 LLM API）
-httpx==0.27.0
+httpx
 
 # 日志
-loguru==0.7.2
+loguru
 
 # 定时任务
-apscheduler==3.10.4
+apscheduler
+
+# OpenAI SDK
+openai
+
+# Qwen SDK
+dashscope

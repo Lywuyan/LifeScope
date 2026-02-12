@@ -3,7 +3,7 @@
 # SQLAlchemy 引擎 + ORM 基类
 # Python 侧主要写 daily_metrics，其他表目前只读
 # ============================================================
-from sqlalchemy import create_engine, Column, Integer, String, Date, Float
+from sqlalchemy import create_engine, Column, Integer, String, Date, Float, Text, DateTime, func
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from sqlalchemy.pool import QueuePool
 
@@ -31,6 +31,16 @@ class Base(DeclarativeBase):
 # 创建一个全局的雪花ID生成器实例
 id_worker = IdWorker(datacenter_id=1, worker_id=1, sequence=0)
 
+# ── Users 模型 ──────────────────────────
+class Users(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True)
+    username = Column(String(64), nullable=False)
+    email = Column(String(128))
+    password_hash = Column(String(256), nullable=False)
+    avatar_url = Column(String(256))
+    fcm_token = Column(String(256))
 
 # ── DailyMetrics 模型 ──────────────────────────
 class DailyMetrics(Base):
@@ -70,6 +80,25 @@ class RawBehaviorData(Base):
         # 使用雪花算法生成唯一ID
         self.id = id_worker.get_id()
 
+# ── AiReport 模型 ────────────────
+class AIReport(Base):
+    __tablename__ = "ai_reports"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, nullable=False)
+    report_date = Column(Date, nullable=False)
+    report_type = Column(String(32), nullable=False)  # daily/weekly/monthly
+    content = Column(Text)
+    chart_url = Column(String(256))
+    style = Column(String(32), default="funny")
+    is_liked = Column(Integer, default=0)
+    is_shared = Column(Integer, default=0)
+    created_at = Column(DateTime, server_default=func.now())
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # 使用雪花算法生成唯一ID
+        self.id = id_worker.get_id()
 
 # ── 工具函数 ──────────────────────────────────
 def get_db():

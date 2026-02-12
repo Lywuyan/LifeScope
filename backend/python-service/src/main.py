@@ -8,13 +8,14 @@
 from datetime import date,timedelta
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from loguru import logger
 
 from src.config import settings
 from src import etl
-from src.database import SessionLocal, RawBehaviorData
+from src.database import SessionLocal, RawBehaviorData, AIReport
 from src.kafka_consumer import start_consumer_thread
+from src.report_service import report_service
 
 app = FastAPI(title="LifeScope AI Service", version="1.0.0", debug=True)
 
@@ -73,3 +74,53 @@ async def trigger_compute(user_id: int, target_date: date):
     """
     etl.compute_daily_metrics(user_id, target_date)
     return {"status": "ok", "user_id": user_id, "date": str(target_date)}
+
+
+@app.post("/api/reports/generate")
+async def generate_report(
+        user_id: int,
+        target_date: date,
+        style: str = "funny"
+):
+    """
+    生成报告
+    POST /api/reports/generate?user_id=1&target_date=2025-02-10&style=funny
+    """
+    try:
+        result = report_service.generate_daily_report(user_id, target_date, style)
+        return {"success": True, "data": result}
+    except Exception as e:
+        logger.error(f"[API] 生成报告失败: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/api/reports/daily/{user_id}/{target_date}")
+async def get_daily_report(user_id: int, target_date: date):
+    """
+    查询某天的报告
+    GET /api/reports/daily/1/2025-02-10
+    """
+    with SessionLocal() as db:
+        report = (
+            db.query(AIReport)
+            .filter(
+                AIReport.user_id == user_id,
+                AIReport.report_date == target_date,
+                AIReport.report_type == "daily"
+            )
+            .first()
+        )
+
+        if not report:
+            raise HTTPException(status_code=404, detail="报告不存在")
+
+        return {
+            "success": True,
+            "data": {
+                "id": report.id,
+                "content": report.content,
+                "style": report.style,
+                "date": str(report.report_date),
+                "is_liked": bool(report.is_liked),
+            }
+        }
