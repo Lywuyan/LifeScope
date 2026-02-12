@@ -4,6 +4,7 @@
 // Phase 5 会在这里填充报告/挑战/成就模块
 // ============================================================
 import 'package:app/screens/manualInput_screen.dart';
+import 'package:app/screens/report_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -72,13 +73,20 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 24),
 
             // ── 今日报告卡片（占位）────────────────
-            _placeholderCard(
-              title: '📊 今日报告',
-              subtitle: 'AI 分析正在生成中...',
-              icon: Icons.analytics_outlined,
-              color: const Color(0xFFA78BFA),
+            GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => ReportScreen(date: DateTime.now())),
+              ),
+              child: _placeholderCard(
+                title: '📊 今日报告',
+                subtitle: 'AI 分析正在生成中...',
+                icon: Icons.analytics_outlined,
+                color: const Color(0xFFA78BFA),
+              ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 24),
 
             // ── 活跃挑战（占位）───────────────────
             _placeholderCard(
