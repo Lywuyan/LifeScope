@@ -3,6 +3,7 @@
 # SQLAlchemy 引擎 + ORM 基类
 # Python 侧主要写 daily_metrics，其他表目前只读
 # ============================================================
+from pymysql.constants.FLAG import AUTO_INCREMENT
 from sqlalchemy import create_engine, Column, Integer, String, Date, Float, Text, DateTime, func
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 from sqlalchemy.pool import QueuePool
@@ -94,6 +95,32 @@ class AIReport(Base):
     is_liked = Column(Integer, default=0)
     is_shared = Column(Integer, default=0)
     created_at = Column(DateTime, server_default=func.now())
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        # 使用雪花算法生成唯一ID
+        self.id = id_worker.get_id()
+
+# ── Badge 模型 ────────────────
+class Badge(Base):
+    __tablename__ = "badges"
+
+    id = Column(Integer, AUTO_INCREMENT=True,primary_key=True)
+    code = Column(String(32), nullable=False)
+    name = Column(String(64), nullable=False)
+    icon = Column(String(8), nullable=False)
+    description = Column(String(256))
+    condition_type = Column(String(32), nullable=False)
+    condition_value = Column(Integer, nullable=False)
+    created_at = Column(DateTime, server_default=func.now())
+
+class UserBadge(Base):
+    __tablename__ = "user_badges"
+
+    id = Column(Integer,primary_key=True)
+    user_id = Column(Integer, nullable=False)
+    badge_id = Column(Integer, nullable=False)
+    earned_at = Column(DateTime, server_default=func.now())
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

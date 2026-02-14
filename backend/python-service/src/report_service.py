@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date,timedelta
 from loguru import logger
 
 from src import llm_service
@@ -51,6 +51,8 @@ class ReportService:
                 "date": str(target_date)
             }
 
+
+
             metrics_data = {
                 "total_active_mins": metrics.total_active_mins or 0,
                 "social_mins": metrics.social_mins or 0,
@@ -58,8 +60,20 @@ class ReportService:
                 "work_mins": metrics.work_mins or 0,
                 "top_app": metrics.top_app or "未知",
                 "peak_hour": metrics.peak_hour or 12,
-                "change_pct": 0,  # TODO: 从 Redis 读昨天数据对比
+                "change_pct": 0
             }
+
+            yesterday = target_date - timedelta(days=1)
+            yesterday_metrics = redis_service.get_metrics(user_id, yesterday)
+
+            if yesterday_metrics:
+                # 从字典中获取数值进行计算
+                yesterday_total_mins = yesterday_metrics.get("total_active_mins", 0)
+                today_total_mins = metrics.total_active_mins or 0
+
+                if yesterday_total_mins > 0:
+                    change_pct = (today_total_mins - yesterday_total_mins) / yesterday_total_mins * 100
+                    metrics_data["change_pct"] = round(change_pct, 1)
 
             # 4. 调用 LLM 生成
             content = llm_service.generate_report(user_data, metrics_data, style)
