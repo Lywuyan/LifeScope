@@ -135,7 +135,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   onPressed: auth.isLoading ? null : _register,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF22C55E),
-                    disabledBackgroundColor: const Color(0xFF22C55E66),
+                    disabledBackgroundColor: const Color(0xff22c55e66),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: auth.isLoading

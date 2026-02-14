@@ -145,7 +145,7 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
 
               // 分类
               DropdownButtonFormField<String>(
-                value: _category,
+                initialValue: _category,
                 dropdownColor: const Color(0xFF1A1D27),
                 style: const TextStyle(color: Colors.white),
                 decoration: _inputDecoration('分类', Icons.category),
@@ -167,7 +167,7 @@ class _ManualInputScreenState extends State<ManualInputScreen> {
                   onPressed: _isSubmitting ? null : _submit,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF22C55E),
-                    disabledBackgroundColor: const Color(0xFF22C55E66),
+                    disabledBackgroundColor: const Color(0xff22c55e66),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: _isSubmitting

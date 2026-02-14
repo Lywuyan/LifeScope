@@ -1,9 +1,16 @@
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:share_plus/share_plus.dart';
+import 'dart:html' as html;
 
 import 'package:app/providers/auth_provider.dart';
+import 'package:app/widgets/share_poster.dart';
 
 class ReportScreen extends StatefulWidget {
   final DateTime date;
@@ -17,6 +24,7 @@ class _ReportScreenState extends State<ReportScreen> {
   bool _isLoading = true;
   String? _content;
   String? _error;
+  final _screenshotCtrl = ScreenshotController();
   
   @override
   void initState() {
@@ -63,6 +71,52 @@ class _ReportScreenState extends State<ReportScreen> {
   
   Future<void> _generateReport() async {
     // 调用生成接口...
+  }
+
+  /// 分享海报：截图 SharePoster → 保存临时文件 → 调用系统分享
+  Future<void> _shareReport() async {
+    if (_content == null) return;
+
+    final dateStr =
+        '${widget.date.year}-${widget.date.month.toString().padLeft(2, '0')}-${widget.date.day.toString().padLeft(2, '0')}';
+
+    // 用 ScreenshotController 对离屏 widget 截图
+    final Uint8List? imageBytes = await _screenshotCtrl.captureFromWidget(
+      MediaQuery(
+        data: const MediaQueryData(),
+        child: Material(
+          color: Colors.transparent,
+          child: SharePoster(
+            reportContent: _content!,
+            date: dateStr,
+            style: 'funny',
+          ),
+        ),
+      ),
+      delay: const Duration(milliseconds: 100),
+    );
+
+    if (imageBytes == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('❌ 海报生成失败')),
+        );
+      }
+      return;
+    }
+
+    // 保存到临时目录
+    // final tempDir = await getTemporaryDirectory();
+    // final file = File('${tempDir.path}/lifescope_report_$dateStr.png');
+    // await file.writeAsBytes(imageBytes);
+
+    // Web 测试
+    final blob = html.Blob([imageBytes], 'image/png');
+    final url = html.Url.createObjectUrl(blob);
+    final anchor = html.AnchorElement(href: url)
+      ..setAttribute('download', 'lifescope_report_$dateStr.png')
+      ..click();
+    html.Url.revokeObjectUrl(url);
   }
   
   @override
@@ -116,7 +170,7 @@ class _ReportScreenState extends State<ReportScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               _actionButton(Icons.favorite_border, '点赞', () {}),
-              _actionButton(Icons.share, '分享', () {}),
+              _actionButton(Icons.share, '分享', _shareReport),
               _actionButton(Icons.refresh, '重新生成', _loadReport),
             ],
           ),

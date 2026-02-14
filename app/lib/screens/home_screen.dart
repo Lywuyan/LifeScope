@@ -5,6 +5,9 @@
 // ============================================================
 import 'package:app/screens/manualInput_screen.dart';
 import 'package:app/screens/report_screen.dart';
+import 'package:app/screens/dashboard_screen.dart';
+import 'package:app/screens/report_list_screen.dart';
+import 'package:app/screens/badge_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -48,7 +51,7 @@ class HomeScreen extends StatelessWidget {
                   height: 48,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(24),
-                    color: const Color(0xFF22C55E33),
+                    color: const Color(0xff22c55e33),
                   ),
                   child: const Center(
                       child: Icon(Icons.person, color: Color(0xFF22C55E))),
@@ -88,36 +91,48 @@ class HomeScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // ── 活跃挑战（占位）───────────────────
-            _placeholderCard(
-              title: '🏆 活跃挑战',
-              subtitle: '还没有接受挑战，试试看？',
-              icon: Icons.emoji_events_outlined,
-              color: const Color(0xFFFBBF24),
-            ),
-            const SizedBox(height: 16),
-
-            // ── 成就徽章（占位）───────────────────
-            _placeholderCard(
-              title: '🎖️ 成就徽章',
-              subtitle: '你的第一个徽章还在等待...',
-              icon: Icons.military_tech_outlined,
-              color: const Color(0xFF60A5FA),
-            ),
-            const SizedBox(height: 16),
-
-            // ── 快速数据上传入口（占位）───────────
-            GestureDetector(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ManualInputScreen()),
-              ),
-              child: _placeholderCard(
-                title: '📱 手动上传数据',
-                subtitle: '记录今天的游戏/健身/学习',
-                icon: Icons.upload_outlined,
-                color: const Color(0xFF34D399),
-              ),
+            // ── 功能模块网格 ────────────────────
+            GridView.count(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              crossAxisCount: 2,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 1.6,
+              children: [
+                _featureCard(
+                  icon: Icons.analytics_outlined,
+                  title: '📊 数据仪表盘',
+                  subtitle: '可视化你的行为',
+                  color: const Color(0xFF3B82F6),
+                  onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const DashboardScreen())),
+                ),
+                _featureCard(
+                  icon: Icons.article_outlined,
+                  title: '📋 历史报告',
+                  subtitle: '查看所有报告',
+                  color: const Color(0xFFA78BFA),
+                  onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const ReportListScreen())),
+                ),
+                _featureCard(
+                  icon: Icons.emoji_events_outlined,
+                  title: '🏆 成就徽章',
+                  subtitle: '查看已获得徽章',
+                  color: const Color(0xFFF59E0B),
+                  onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const BadgeScreen())),
+                ),
+                _featureCard(
+                  icon: Icons.upload_outlined,
+                  title: '📱 手动录入',
+                  subtitle: '记录行为数据',
+                  color: const Color(0xFF34D399),
+                  onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const ManualInputScreen())),
+                ),
+              ],
             ),
           ],
         ),
@@ -126,7 +141,57 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-/// 占位卡片组件
+/// 功能卡片组件
+Widget _featureCard({
+  required IconData icon,
+  required String title,
+  required String subtitle,
+  required Color color,
+  required VoidCallback onTap,
+}) {
+  return GestureDetector(
+    onTap: onTap,
+    child: Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1D27),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFF2A2D3A)),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: color.withOpacity(0.15),
+            ),
+            child: Center(child: Icon(icon, color: color, size: 20)),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title,
+                  style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white)),
+              const SizedBox(height: 4),
+              Text(subtitle,
+                  style: const TextStyle(
+                      fontSize: 12, color: Color(0xFF64748B))),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+/// 占位卡片组件（已弃用）
 Widget _placeholderCard({
   required String title,
   required String subtitle,
@@ -169,7 +234,7 @@ Widget _placeholderCard({
             ],
           ),
         ),
-        Icon(Icons.chevron_right, color: const Color(0xFF64748B), size: 20),
+        const Icon(Icons.chevron_right, color: Color(0xFF64748B), size: 20),
       ],
     ),
   );

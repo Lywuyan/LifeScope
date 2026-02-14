@@ -118,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: auth.isLoading ? null : _login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF22C55E),
-                    disabledBackgroundColor: const Color(0xFF22C55E66),
+                    disabledBackgroundColor: const Color(0xff22c55e66),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   child: auth.isLoading
