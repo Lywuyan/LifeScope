@@ -13,6 +13,7 @@ public class TimeMetaObjectHandler implements MetaObjectHandler {
     public void insertFill(MetaObject metaObject) {
         this.strictInsertFill(metaObject,"createdAt", LocalDateTime.class,LocalDateTime.now());
         this.strictUpdateFill(metaObject,"updatedAt", LocalDateTime.class,LocalDateTime.now());
+        this.strictInsertFill(metaObject,"joinedAt", LocalDateTime.class,LocalDateTime.now());
     }
 
     @Override
