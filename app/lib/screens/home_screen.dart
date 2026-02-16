@@ -1,13 +1,15 @@
 // ============================================================
 // FILE: lib/screens/home_screen.dart
 // 首页 — 登录后的主界面骨架
-// Phase 5 会在这里填充报告/挑战/成就模块
 // ============================================================
 import 'package:app/screens/manualInput_screen.dart';
 import 'package:app/screens/report_screen.dart';
 import 'package:app/screens/dashboard_screen.dart';
 import 'package:app/screens/report_list_screen.dart';
 import 'package:app/screens/badge_screen.dart';
+import 'package:app/screens/leaderboard_screen.dart';
+import 'package:app/screens/friends_screen.dart';
+import 'package:app/screens/challenge_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -75,7 +77,7 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(height: 24),
 
-            // ── 今日报告卡片（占位）────────────────
+            // ── 今日报告卡片 ────────────────
             GestureDetector(
               onTap: () => Navigator.push(
                 context,
@@ -132,6 +134,30 @@ class HomeScreen extends StatelessWidget {
                   onTap: () => Navigator.push(context,
                     MaterialPageRoute(builder: (_) => const ManualInputScreen())),
                 ),
+                _featureCard(
+                  icon: Icons.leaderboard_outlined,
+                  title: '🏅 排行榜',
+                  subtitle: '好友活跃度排名',
+                  color: const Color(0xFFF59E0B),
+                  onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const LeaderboardScreen())),
+                ),
+                _featureCard(
+                  icon: Icons.people_outline,
+                  title: '👥 好友',
+                  subtitle: '管理好友关系',
+                  color: const Color(0xFF06B6D4),
+                  onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const FriendsScreen())),
+                ),
+                _featureCard(
+                  icon: Icons.flash_on_outlined,
+                  title: '⚡ 挑战',
+                  subtitle: '向好友发起挑战',
+                  color: const Color(0xFFEF4444),
+                  onTap: () => Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const ChallengeListScreen())),
+                ),
               ],
             ),
           ],
@@ -141,13 +167,14 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-/// 功能卡片组件
+/// 功能卡片组件（支持角标）
 Widget _featureCard({
   required IconData icon,
   required String title,
   required String subtitle,
   required Color color,
   required VoidCallback onTap,
+  int badge = 0,
 }) {
   return GestureDetector(
     onTap: onTap,
@@ -158,40 +185,62 @@ Widget _featureCard({
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFF2A2D3A)),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: color.withOpacity(0.15),
-            ),
-            child: Center(child: Icon(icon, color: color, size: 20)),
-          ),
           Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title,
-                  style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white)),
-              const SizedBox(height: 4),
-              Text(subtitle,
-                  style: const TextStyle(
-                      fontSize: 12, color: Color(0xFF64748B))),
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: color.withOpacity(0.15),
+                ),
+                child: Center(child: Icon(icon, color: color, size: 20)),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title,
+                      style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white)),
+                  const SizedBox(height: 4),
+                  Text(subtitle,
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: badge > 0
+                              ? const Color(0xFFF59E0B)
+                              : const Color(0xFF64748B))),
+                ],
+              ),
             ],
           ),
+          // 角标
+          if (badge > 0)
+            Positioned(
+              right: 0,
+              top: 0,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEF4444),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text('$badge',
+                    style: const TextStyle(color: Colors.white, fontSize: 10)),
+              ),
+            ),
         ],
       ),
     ),
   );
 }
 
-/// 占位卡片组件（已弃用）
+/// 占位卡片组件
 Widget _placeholderCard({
   required String title,
   required String subtitle,

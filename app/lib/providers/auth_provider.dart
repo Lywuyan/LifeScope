@@ -14,7 +14,7 @@ import 'dart:convert';
 const String API_BASE = "http://localhost:8080/api";
 
 class UserInfo {
-  final int    id;
+  final String id;
   final String username;
   final String email;
   final String? avatarUrl;

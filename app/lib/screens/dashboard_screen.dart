@@ -37,7 +37,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           },
         ),
         http.get(
-          Uri.parse('$API_BASE/api/reports/top-apps/${DateTime.now().toIso8601String().split('T')[0]}'),
+          Uri.parse('$API_BASE/reports/top-apps/${DateTime.now().toIso8601String().split('T')[0]}'),
           headers: {
             'Authorization': 'Bearer ${auth.token}',
             'Content-Type': 'application/json',

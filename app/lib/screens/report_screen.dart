@@ -106,17 +106,17 @@ class _ReportScreenState extends State<ReportScreen> {
     }
 
     // 保存到临时目录
-    // final tempDir = await getTemporaryDirectory();
-    // final file = File('${tempDir.path}/lifescope_report_$dateStr.png');
-    // await file.writeAsBytes(imageBytes);
+    final tempDir = await getTemporaryDirectory();
+    final file = File('${tempDir.path}/lifescope_report_$dateStr.png');
+    await file.writeAsBytes(imageBytes);
 
     // Web 测试
-    final blob = html.Blob([imageBytes], 'image/png');
-    final url = html.Url.createObjectUrl(blob);
-    final anchor = html.AnchorElement(href: url)
-      ..setAttribute('download', 'lifescope_report_$dateStr.png')
-      ..click();
-    html.Url.revokeObjectUrl(url);
+    // final blob = html.Blob([imageBytes], 'image/png');
+    // final url = html.Url.createObjectUrl(blob);
+    // final anchor = html.AnchorElement(href: url)
+    //   ..setAttribute('download', 'lifescope_report_$dateStr.png')
+    //   ..click();
+    // html.Url.revokeObjectUrl(url);
   }
   
   @override
