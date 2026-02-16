@@ -18,7 +18,6 @@ import org.wuyan.lifescope.service.LeaderboardService;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -107,15 +106,15 @@ public class LeaderboardServiceImpl implements LeaderboardService {
      * 获取当前用户的已接受好友 ID 列表
      */
     private List<Long> getFriendIds(Long userId) {
-        LambdaQueryWrapper<Friendship> wrapper = new LambdaQueryWrapper<Friendship>()
-                .eq(Friendship::getUserId, userId)
-                .eq(Friendship::getStatus, FriendStatus.ACCEPTED)
-                .select(Friendship::getFriendId);
-
-        return friendMapper.selectList(wrapper)
-                .stream()
-                .map(Friendship::getFriendId)
-                .collect(Collectors.toCollection(ArrayList::new));
+        List<Object> friendIds = friendMapper.selectObjs(
+                new LambdaQueryWrapper<Friendship>()
+                        .eq(Friendship::getUserId, userId)
+                        .eq(Friendship::getStatus, FriendStatus.ACCEPTED)
+                        .select(Friendship::getFriendId)
+        );
+         return friendIds.stream()
+                .map(obj -> ((Number) obj).longValue())
+                .collect(Collectors.toList());
     }
 
     /**
