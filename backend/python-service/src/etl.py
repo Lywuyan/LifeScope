@@ -102,6 +102,13 @@ def process_raw_message(payload: dict):
         ]
         redis_service.cache_daily_data(payload["user_id"], record_date, data)
 
+        # ── 实时更新 daily_metrics（不再等凌晨定时任务）──
+        try:
+            compute_daily_metrics(user_id, record_date)
+            logger.info(f"[ETL] 实时更新 daily_metrics 完成 → user={user_id}, date={record_date}")
+        except Exception as e:
+            logger.warning(f"[ETL] 实时更新 daily_metrics 失败（定时任务兜底）: {e}")
+
 # ── 2. 计算每日汇总指标 ────────────────────────────
 def compute_daily_metrics(user_id: int, target_date: date):
     logger.info(f"[ETL] 开始计算 → user={user_id}, date={target_date}")
