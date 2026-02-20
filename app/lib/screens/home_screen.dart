@@ -10,13 +10,73 @@ import 'package:app/screens/badge_screen.dart';
 import 'package:app/screens/leaderboard_screen.dart';
 import 'package:app/screens/friends_screen.dart';
 import 'package:app/screens/challenge_list_screen.dart';
+import 'package:app/services/usage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:app/providers/auth_provider.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+
+  @override
+  void initState() {
+    super.initState();
+    _initUsageSync();
+  }
+
+  Future<void> _initUsageSync() async {
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final token = auth.token;
+    if (token == null) return;
+
+    // 检查权限
+    final hasPermission = await UsageService.hasPermission();
+    if (!hasPermission && mounted) {
+      _showPermissionDialog();
+      return;
+    }
+
+    // 自动同步当天数据
+    await UsageService.syncToday(token);
+  }
+
+  void _showPermissionDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1D27),
+        title: const Text('📱 开启使用情况访问',
+            style: TextStyle(color: Colors.white)),
+        content: const Text(
+          'LifeScope 需要访问你的屏幕使用时间来自动记录行为数据、生成报告和参与挑战。\n\n请在设置中找到 LifeScope 并开启权限。',
+          style: TextStyle(color: Color(0xFF94A3B8)),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('稍后', style: TextStyle(color: Color(0xFF64748B))),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF22C55E),
+            ),
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await UsageService.requestPermission();
+            },
+            child: const Text('去设置', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,7 +160,7 @@ class HomeScreen extends StatelessWidget {
               crossAxisCount: 2,
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
-              childAspectRatio: 1.6,
+              childAspectRatio: 1.4,
               children: [
                 _featureCard(
                   icon: Icons.analytics_outlined,

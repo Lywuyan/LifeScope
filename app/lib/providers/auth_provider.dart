@@ -11,7 +11,7 @@ import 'package:http/http.dart';
 import 'dart:convert';
 
 /// API 基地址（开发期指向本机）
-const String API_BASE = "http://localhost:8080/api";
+const String API_BASE = "http://10.0.2.2:8080/api";
 
 class UserInfo {
   final String id;

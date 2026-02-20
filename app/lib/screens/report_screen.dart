@@ -7,7 +7,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
-import 'dart:html' as html;
 
 import 'package:app/providers/auth_provider.dart';
 import 'package:app/widgets/share_poster.dart';
@@ -57,8 +56,14 @@ class _ReportScreenState extends State<ReportScreen> {
       }
       
       final body = jsonDecode(response.body);
+      final data = body['data'];
+      if (data == null || data['content'] == null) {
+        // 报告数据为空，尝试生成
+        await _generateReport();
+        return;
+      }
       setState(() {
-        _content = body['data']['content'];
+        _content = data['content'];
         _isLoading = false;
       });
     } catch (e) {
@@ -70,7 +75,36 @@ class _ReportScreenState extends State<ReportScreen> {
   }
   
   Future<void> _generateReport() async {
-    // 调用生成接口...
+    try {
+      final dateStr = widget.date.toIso8601String().split('T')[0];
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      final token = auth.token;
+
+      final url = '$API_BASE/reports/generate?targetDate=$dateStr&style=funny';
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      final body = jsonDecode(response.body);
+      if (response.statusCode == 200) {
+        // 生成成功，重新加载
+        await _loadReport();
+      } else {
+        setState(() {
+          _error = body['detail'] ?? '报告生成失败';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _error = '报告生成失败: $e';
+        _isLoading = false;
+      });
+    }
   }
 
   /// 分享海报：截图 SharePoster → 保存临时文件 → 调用系统分享
