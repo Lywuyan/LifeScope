@@ -12,6 +12,16 @@ import java.util.List;
 public interface DailyMetricsMapper extends BaseMapper<DailyMetrics> {
 
     /**
+     * 查询指定用户在日期范围内的每日数据
+     */
+    @Select("SELECT * FROM daily_metrics WHERE user_id = #{userId} " +
+            "AND metric_date BETWEEN #{startDate} AND #{endDate}")
+    List<DailyMetrics> selectByUserAndDateRange(
+            @Param("userId") Long userId,
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
+
+    /**
      * 查询指定用户列表在某天的活跃排行
      */
     @Select("<script>"
