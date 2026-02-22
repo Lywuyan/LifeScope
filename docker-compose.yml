@@ -1,0 +1,111 @@
+# ─────────────────────────────────────────────
+# LifeScope
+# 启动: cd docker && docker compose up -d
+# 停止: docker compose down
+# ─────────────────────────────────────────────
+
+services:
+  # ──── MySQL 8 ────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: lifescope-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init-sql:/docker-entrypoint-initdb.d   # 启动时自动执行 SQL 初始化
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - lifescope-net
+
+  # ──── Redis 7 ────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: lifescope-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    networks:
+      - lifescope-net
+
+  # ──── Kafka ───────────────────────
+  kafka:
+    image: apache/kafka:3.7.2
+    container_name: lifescope-kafka
+    ports:
+      - "9092:9092"
+    environment:
+      # KRaft核心配置
+      CLUSTER_ID: "5L6g3nShT-eMCtK--X86sw"  # 使用日志中的默认ID
+      NODE_ID: 1
+      PROCESS_ROLES: "controller,broker"    # 同时担任控制器和broker
+      
+      # 监听器配置
+      LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+      ADVERTISED_LISTENERS: "PLAINTEXT://192.168.31.128:9092"
+      
+      # 控制器配置（单节点模式）
+      CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+      
+      # 日志目录
+      LOG_DIRS: "/tmp/kafka-logs"
+      
+      # Broker配置
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_NUM_PARTITIONS: 3
+      KAFKA_DEFAULT_REPLICATION_FACTOR: 1
+      
+      # 内存配置
+      KAFKA_HEAP_OPTS: "-Xmx512m -Xms256m"
+      
+      # 日志保留
+      KAFKA_LOG_RETENTION_HOURS: 168
+      
+    healthcheck:
+      test: ["CMD", "kafka-topics.sh", "--list", "--bootstrap-server", "localhost:9092"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s  # KRaft模式需要更多启动时间
+    networks:
+      - lifescope-net
+
+  # ──── Kafka-UI ──────────────
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: lifescope-kafka-ui
+    ports:
+      - "8090:8080"
+    depends_on:
+      - kafka
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local-kraft
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092  # 改为9092
+    networks:
+      - lifescope-net
+
+# ──── 数据卷 ─────────────────────────────────
+volumes:
+  mysql_data:
+  redis_data:
+
+# ──── 网络 ───────────────────────────────────
+networks:
+  lifescope-net:
+    driver: bridge
